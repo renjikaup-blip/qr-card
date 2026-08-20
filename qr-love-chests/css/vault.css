@@ -1,0 +1,241 @@
+/* =========================================================================
+   🎁 CHEST 3: SECRET VAULT, LOVE LETTER & SCRATCH COUPONS
+   ========================================================================= */
+
+.vault-screen-wrapper {
+  padding: 20px 20px 60px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.vault-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.vault-title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.vault-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+   WAX-SEALED ROMANTIC LOVE LETTER
+   ========================================================================= */
+.letter-section {
+  margin-bottom: 32px;
+}
+
+.envelope-card {
+  background: linear-gradient(135deg, #FFF9F5, #FFF2EC);
+  border: 2px solid #FFE4D6;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(255, 138, 101, 0.15);
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.envelope-card:active {
+  transform: scale(0.98);
+}
+
+.wax-seal {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #EF4444, #B91C1C);
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FDE047;
+  font-size: 24px;
+  margin: 0 auto 16px;
+  transition: transform 0.3s;
+}
+
+.envelope-title {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  color: #7C2D12;
+  margin-bottom: 4px;
+}
+
+.envelope-hint {
+  font-size: 12px;
+  color: #9A3412;
+  font-weight: 600;
+}
+
+/* Unfolded Letter Sheet */
+.letter-sheet {
+  background: #FFFDF9;
+  border: 1px solid #F3E8DF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 24px 20px;
+  margin-top: 16px;
+  display: none;
+  text-align: left;
+  animation: unfoldLetter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes unfoldLetter {
+  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.letter-heading {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: #831843;
+  margin-bottom: 4px;
+}
+
+.letter-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.letter-paragraph {
+  font-family: var(--font-handwriting);
+  font-size: 22px;
+  line-height: 1.5;
+  color: #372844;
+  margin-bottom: 14px;
+}
+
+.letter-signoff {
+  font-family: var(--font-handwriting);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-pink);
+  margin-top: 20px;
+  white-space: pre-line;
+}
+
+/* =========================================================================
+   SCRATCH-OFF LOVE COUPONS
+   ========================================================================= */
+.coupons-section {
+  margin-top: 28px;
+}
+
+.coupons-header {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coupons-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+}
+
+.coupons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.scratch-card {
+  position: relative;
+  background: white;
+  border-radius: 18px;
+  border: 1.5px solid #F3E8FF;
+  box-shadow: 0 8px 20px rgba(167, 139, 250, 0.12);
+  overflow: hidden;
+  height: 120px;
+}
+
+/* Reward Content Beneath Canvas */
+.scratch-reward {
+  position: absolute;
+  inset: 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #FFF5F7, #FAF5FF);
+}
+
+.scratch-reward-icon {
+  font-size: 38px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.scratch-reward-info {
+  flex: 1;
+}
+
+.scratch-reward-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.scratch-reward-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.scratch-redeemed-stamp {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  border: 2px solid #10B981;
+  color: #10B981;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transform: rotate(-8deg);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.scratch-card.revealed .scratch-redeemed-stamp {
+  opacity: 1;
+}
+
+/* HTML5 Scratch Surface Canvas */
+.scratch-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  touch-action: none;
+  transition: opacity 0.4s;
+}

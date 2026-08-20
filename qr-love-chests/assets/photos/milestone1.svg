@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFDEE9"/>
+      <stop offset="100%" stop-color="#B5FFFC"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="400" height="300" rx="16" fill="url(#bg1)"/>
+  <circle cx="200" cy="130" r="70" fill="#FFF5F7" opacity="0.8"/>
+  <text x="200" y="145" font-size="70" text-anchor="middle" filter="url(#glow)">✨</text>
+  <text x="200" y="210" font-family="'Plus Jakarta Sans', sans-serif" font-size="18" font-weight="bold" fill="#FF5E8E" text-anchor="middle">The Day Everything Began</text>
+  <text x="200" y="235" font-family="'Caveat', cursive" font-size="20" fill="#7C6A96" text-anchor="middle">"Two worlds collided into one"</text>
+  <g transform="translate(60, 40)"><circle cx="10" cy="10" r="4" fill="#FF8FAB"/><text x="18" y="14" font-size="12" fill="#FF8FAB">💖</text></g>
+  <g transform="translate(310, 50)"><circle cx="10" cy="10" r="3" fill="#FF8FAB"/><text x="16" y="14" font-size="14" fill="#FF8FAB">⭐</text></g>
+</svg>

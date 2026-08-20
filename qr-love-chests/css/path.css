@@ -1,0 +1,343 @@
+/* =========================================================================
+   🌸 CHEST 1: THE MEMORY WALKING PATH STYLES
+   ========================================================================= */
+
+.path-screen-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  background: linear-gradient(180deg, #FFE8EE 0%, #FFF5F7 30%, #F5F3FF 70%, #FFEBE7 100%);
+  overflow: hidden;
+}
+
+/* Path Top HUD Header */
+.path-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.9);
+  z-index: 50;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.path-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.path-main-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.path-progress-text {
+  font-size: 12px;
+  color: var(--primary-pink);
+  font-weight: 600;
+}
+
+/* Progress Bar */
+.path-progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: #FFE3EC;
+  position: relative;
+  z-index: 50;
+}
+
+.path-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #FF6B8B, #A78BFA);
+  transition: width 0.3s ease;
+}
+
+/* Scrollable Walking Trail Canvas/Container */
+.path-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: 40px 20px 120px;
+  scroll-behavior: smooth;
+}
+
+/* Scenic Trail Background & Road */
+.trail-container {
+  position: relative;
+  max-width: 360px;
+  margin: 0 auto;
+  min-height: 1400px;
+}
+
+/* SVG Winding Path Line */
+.trail-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Milestone Checkpoint Nodes */
+.milestone-node {
+  position: absolute;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.milestone-node:active {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.milestone-pin {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #FF8FAB;
+  box-shadow: 0 6px 18px rgba(255, 107, 139, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.milestone-node.visited .milestone-pin {
+  border-color: #A78BFA;
+  background: #F5F3FF;
+  box-shadow: 0 6px 18px rgba(167, 139, 250, 0.35);
+}
+
+.milestone-node.active-target .milestone-pin {
+  animation: bouncePin 1.8s infinite;
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 20px rgba(255, 107, 139, 0.6);
+}
+
+@keyframes bouncePin {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.milestone-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--primary-pink);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.milestone-label {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+/* Walking Character Avatar */
+.walking-avatar {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  z-index: 20;
+  transform: translate(-50%, -50%);
+  transition: left 0.6s cubic-bezier(0.25, 1, 0.5, 1), top 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+.avatar-body {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #FF6B8B, #FF8E53);
+  border-radius: 50%;
+  box-shadow: 0 6px 18px rgba(255, 107, 139, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border: 2.5px solid white;
+}
+
+.walking-avatar.walking .avatar-body {
+  animation: walkWobble 0.3s infinite alternate ease-in-out;
+}
+
+@keyframes walkWobble {
+  0% { transform: rotate(-8deg) translateY(-2px); }
+  100% { transform: rotate(8deg) translateY(2px); }
+}
+
+/* Floating Path Scenery Decor (Clouds, Flowers, Trees) */
+.scenery-decor {
+  position: absolute;
+  pointer-events: none;
+  font-size: 20px;
+  opacity: 0.85;
+  z-index: 2;
+}
+
+/* Walking Control Bar (Bottom Floating) */
+.path-control-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  padding: 16px 20px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.96) 60%, rgba(255, 255, 255, 0));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 60;
+}
+
+.walk-btn {
+  background: linear-gradient(135deg, #FF6B8B, #FF8E53);
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 28px;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(255, 107, 139, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.walk-btn:active {
+  transform: scale(0.95);
+}
+
+.walk-tip {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* =========================================================================
+   POLAROID MEMORY MODAL POPUP
+   ========================================================================= */
+.polaroid-card {
+  background: #FFFFFF;
+  padding: 16px 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  position: relative;
+  transform: rotate(-1.5deg);
+  transition: transform 0.3s;
+}
+
+.polaroid-card::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 24px;
+  background: rgba(255, 235, 180, 0.7);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border-radius: 2px;
+}
+
+.polaroid-photo-frame {
+  width: 100%;
+  height: 240px;
+  background: #F3F4F6;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border: 1px solid #E5E7EB;
+}
+
+.polaroid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.polaroid-info {
+  text-align: center;
+}
+
+.polaroid-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary-pink);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.polaroid-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.polaroid-desc {
+  font-family: var(--font-handwriting);
+  font-size: 22px;
+  line-height: 1.4;
+  color: #4A3E5C;
+  margin-bottom: 16px;
+}
+
+.polaroid-btn {
+  background: #FFF5F7;
+  color: var(--primary-pink);
+  border: 1.5px solid #FFD1DC;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

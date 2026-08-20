@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SUPER LOVE WORLD 🍄✨</title>
+
+  <!-- Google Fonts: Retro 8-bit & Pixel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/path.css">
+  <link rel="stylesheet" href="css/arcade.css">
+  <link rel="stylesheet" href="css/vault.css">
+  <link rel="stylesheet" href="css/platformer.css">
+</head>
+<body>
+
+  <!-- ──────────────────────────────────────────
+       SCREEN 1: 🔒 PASSCODE LOCK SCREEN
+       ────────────────────────────────────────── -->
+  <div id="lockScreen" class="screen lock-screen active">
+    <div class="lock-avatar">🍄</div>
+    <h1 class="lock-title" style="font-family: 'Press Start 2P', monospace; font-size: 16px; margin-bottom: 12px;">WORLD 1-1 LOCK</h1>
+    <p class="lock-subtitle" id="passcodeHint">Enter secret passcode to play 🎮</p>
+
+    <div class="pin-dots" id="pinDotsContainer">
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+      <div class="pin-dot"></div>
+    </div>
+
+    <div class="keypad-grid">
+      <button class="key-btn" data-val="1">1</button>
+      <button class="key-btn" data-val="2">2</button>
+      <button class="key-btn" data-val="3">3</button>
+      <button class="key-btn" data-val="4">4</button>
+      <button class="key-btn" data-val="5">5</button>
+      <button class="key-btn" data-val="6">6</button>
+      <button class="key-btn" data-val="7">7</button>
+      <button class="key-btn" data-val="8">8</button>
+      <button class="key-btn" data-val="9">9</button>
+      <button class="key-btn action-btn" data-val="clear">✕</button>
+      <button class="key-btn" data-val="0">0</button>
+      <button class="key-btn action-btn" data-val="back">⌫</button>
+    </div>
+  </div>
+
+  <!-- ──────────────────────────────────────────
+       SCREEN 2: 🍄 RETRO MARIO / TERRARIA PLATFORMER
+       ────────────────────────────────────────── -->
+  <div id="rpgGameScreen" class="rpg-game-wrapper" style="display:none;">
+    
+    <!-- Retro 8-bit Top HUD -->
+    <div class="retro-hud-top">
+      <div class="hud-item">
+        <span class="hud-title">PLAYER</span>
+        <span class="hud-val dynamic-her-name">PRINCESS</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-title">WORLD</span>
+        <span class="hud-val">1-1 ❤️</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-title">COINS</span>
+        <span class="hud-val" id="retroCoinCount">🪙 x 00</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-title" id="retroScoreCount">SCORE: 00000</span>
+      </div>
+      <div style="display:flex; gap:8px; pointer-events:auto;">
+        <button class="icon-btn" id="photoUploadBtn" title="Upload Photos of Us" style="width: 34px; height: 34px; font-size: 14px;">📷</button>
+        <button class="icon-btn" id="musicToggleBtn" title="Toggle 8-bit Music" style="width: 34px; height: 34px; font-size: 14px;">🎵</button>
+      </div>
+    </div>
+
+    <div class="retro-desktop-hint">
+      🎮 [A/D or ◄ ►] Walk • [SPACE / W] Jump • [E] Open & Interact
+    </div>
+
+    <!-- The 2D World Canvas -->
+    <canvas id="rpgCanvas"></canvas>
+
+    <!-- Retro On-Screen Controls Layer (Mobile) -->
+    <div class="retro-controls-layer">
+      <!-- D-Pad (Left & Right) -->
+      <div class="dpad-zone">
+        <button class="dpad-btn" id="btnLeft">◄</button>
+        <button class="dpad-btn" id="btnRight">►</button>
+      </div>
+
+      <!-- Jump & Action Buttons (B & E) -->
+      <div class="action-buttons-zone">
+        <button class="btn-jump" id="btnJump">
+          <span>JUMP</span>
+          <span style="font-size:8px; opacity:0.8;">[SPACE]</span>
+        </button>
+        <button class="btn-action-a" id="rpgActionBtn">
+          <span>OPEN</span>
+          <span style="font-size:8px; opacity:0.8;">[E]</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ──────────────────────────────────────────
+       MODALS & EXPERIENCES
+       ────────────────────────────────────────── -->
+
+  <!-- Polaroid Milestone Modal (When inspecting road stops) -->
+  <div class="modal-overlay" id="polaroidModal">
+    <div class="modal-content">
+      <button class="modal-close">✕</button>
+      <div class="polaroid-card">
+        <div class="polaroid-photo-frame" id="polaroidPhotoFrame"></div>
+        <div class="polaroid-info">
+          <div class="polaroid-tag" id="polaroidTag">Memory Checkpoint</div>
+          <div class="polaroid-title" id="polaroidTitle">Our Special Memory</div>
+          <div class="polaroid-desc" id="polaroidDesc">"Loving you is the easiest thing in the world."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chest 2: Love Quiz Modal -->
+  <div class="modal-overlay" id="quizModalOverlay">
+    <div class="modal-content" style="max-width: 480px; max-height: 85vh; padding: 24px;">
+      <button class="modal-close">✕</button>
+      <div id="quizContainer">
+        <!-- Rendered dynamically by love-quiz.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Chest 3: The Secret Vault Modal (Love Letter & Scratch Coupons) -->
+  <div class="modal-overlay" id="vaultModalOverlay">
+    <div class="modal-content" style="max-width: 480px; max-height: 85vh;">
+      <button class="modal-close">✕</button>
+      
+      <div class="vault-header">
+        <h1 class="vault-title" style="font-family: 'Press Start 2P', monospace; font-size: 15px;">THE SECRET VAULT 🎁</h1>
+        <p class="vault-subtitle">A special heartfelt letter & coupons made just for you</p>
+      </div>
+
+      <!-- Wax Sealed Love Letter -->
+      <div class="letter-section">
+        <div class="envelope-card" id="envelopeCard">
+          <div class="wax-seal">💌</div>
+          <div class="envelope-title">Sealed With All My Love</div>
+          <div class="envelope-hint">Tap wax seal to break open and read ✨</div>
+        </div>
+
+        <div class="letter-sheet" id="letterSheet">
+          <div class="letter-heading" id="letterHeading">To My Dearest Love 💌</div>
+          <div class="letter-date" id="letterDate">Forever & Always</div>
+          <div id="letterBody"></div>
+          <div class="letter-signoff" id="letterSignoff">Forever Yours,<br>With all my love ❤️</div>
+        </div>
+      </div>
+
+      <!-- Scratch-off Love Coupons -->
+      <div class="coupons-section">
+        <h2 class="coupons-header" style="font-family: 'Press Start 2P', monospace; font-size: 13px;">Love Coupons 🎟️</h2>
+        <p class="coupons-sub">Scratch off the silver glitter surface with your finger!</p>
+        <div class="coupons-grid" id="couponsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Album Uploader Modal -->
+  <div class="modal-overlay" id="photoUploadModal">
+    <div class="modal-content" style="max-width: 480px; max-height: 85vh; padding: 24px;">
+      <button class="modal-close">✕</button>
+      
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="font-family: 'Press Start 2P', monospace; font-size: 14px; color: var(--text-dark); margin-bottom: 8px;">📷 OUR MEMORY PHOTOS</h2>
+        <p style="font-size: 12px; color: var(--text-muted);">Upload your real photos for each milestone shrine!</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 14px;" id="photoUploadList">
+        <!-- Generated dynamically in app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 📸 Full-Screen Photo Lightbox -->
+  <div id="lightboxOverlay" onclick="window.closeLightbox()" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    cursor: zoom-out;
+    padding: 16px;
+  ">
+    <img id="lightboxImg" src="" alt="" style="
+      max-width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    ">
+    <div id="lightboxCaption" style="
+      color: white;
+      font-family: 'Caveat', cursive;
+      font-size: 20px;
+      text-align: center;
+      opacity: 0.85;
+    "></div>
+    <div style="color: rgba(255,255,255,0.5); font-size: 11px; font-family: sans-serif;">Tap anywhere to close</div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/rpg-config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/love-quiz.js"></script>
+  <script src="js/platformer-engine.js"></script>
+  <script src="js/vault.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
