@@ -211,17 +211,15 @@ class RetroPlatformerGame {
 
   // ──────────────────────────────────────────────
   // LEVEL 1-2: Sky Kingdom (Medium - Challenge!)
+  // NO GROUND FLOOR - Pure cloud platforming!
   // ──────────────────────────────────────────────
   buildLevel2(groundY) {
     // Start higher up in the sky
     const skyStart = groundY - 300;
 
-    // 1. Ground Floor (optional safety net)
-    for (let x = 0; x < this.worldWidth; x += 40) {
-      this.blocks.push({ x, y: groundY, width: 40, height: 180, type: 'ground' });
-    }
+    // NO continuous ground floor! Only cloud platforms!
 
-    // 2. CHALLENGE: Floating Cloud Platforms (No continuous ground!)
+    // CHALLENGE: Floating Cloud Platforms (No continuous ground!)
     // Opening sequence - stepping stones
     this.addIsland(150, skyStart + 80, 100, 'cloud');
     this.addIsland(350, skyStart + 60, 100, 'cloud');
@@ -421,7 +419,7 @@ class RetroPlatformerGame {
       }
 
       if (id === 1) {
-        alert("🌸 Chest 1 Unlocked: Jump across the world to discover all our memory shrines!");
+        alert("🌟 Sky Chest 1 Unlocked: Keep jumping to reach the peak!");
       } else if (id === 2) {
         // Open Chest 2 Love Quiz Modal
         window.loveQuizEngine.init();
@@ -535,7 +533,7 @@ class RetroPlatformerGame {
         this.hitBlock(b);
       }
 
-      // Check Landing on top of blocks/ground
+      // Check Landing on top of blocks/ground/clouds
       if (
         this.player.x + this.player.width > b.x &&
         this.player.x < b.x + b.width &&
@@ -734,12 +732,25 @@ class RetroPlatformerGame {
       this.ctx.fillRect(b.x, y + 8, b.width, 4);
     } 
     else if (b.type === 'cloud') {
+      // Cloud Platform - bright white with shadow
       this.ctx.fillStyle = '#FFFFFF';
       this.ctx.beginPath();
-      this.ctx.roundRect(b.x, y, b.width, b.height, 12);
+      this.ctx.roundRect(b.x, y, b.width, b.height, 8);
       this.ctx.fill();
-      this.ctx.strokeStyle = '#E2E8F0';
+      
+      // Cloud outline/shadow for depth
+      this.ctx.strokeStyle = '#D0D8E0';
+      this.ctx.lineWidth = 2;
       this.ctx.stroke();
+      
+      // Cloud puff effect on top
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      this.ctx.beginPath();
+      this.ctx.arc(b.x + 8, y - 4, 8, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.beginPath();
+      this.ctx.arc(b.x + b.width - 8, y - 4, 8, 0, Math.PI * 2);
+      this.ctx.fill();
     }
     else if (b.type === 'questionBlock') {
       // Mario Question Block [?]
