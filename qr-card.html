@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Printable QR Code Card Generator 🎁</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --pink: #FF6B8B;
+      --bg: #FFFDF9;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-head: 'Fredoka', cursive, sans-serif;
+      --font-hand: 'Caveat', cursive;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: #FDF4F6;
+      color: #374151;
+      padding: 20px 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .generator-layout {
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .generator-layout {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 0;
+      }
+      
+      body {
+        padding: 12px 12px;
+      }
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: white;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
+      .controls-panel {
+        padding: 20px;
+        border-radius: 16px;
+      }
+    }
+
+    .panel-title {
+      font-family: var(--font-head);
+      font-size: 24px;
+      color: var(--pink);
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .panel-title {
+        font-size: 20px;
+      }
+    }
+
+    .panel-sub {
+      font-size: 13px;
+      color: #6B7280;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #374151;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #E5E7EB;
+      border-radius: 10px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    @media (max-width: 768px) {
+      input, textarea, select {
+        padding: 14px 14px;
+        font-size: 16px;
+      }
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--pink);
+    }
+
+    small {
+      color: #6B7280;
+      font-size: 11px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #FF6B8B, #FF8E53);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      box-shadow: 0 6px 18px rgba(255, 107, 139, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      .btn-action {
+        padding: 16px 20px;
+        font-size: 16px;
+        border-radius: 14px;
+      }
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #FFF0F3;
+      color: var(--pink);
+      text-decoration: none;
+      margin-top: 10px;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .button-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-action.small {
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+
+    /* Preview Card Container */
+    .preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .card-preview {
+      width: 100%;
+      max-width: 320px;
+      background: white;
+      border-radius: 20px;
+      padding: 28px 20px;
+      box-shadow: 0 20px 40px rgba(255, 107, 139, 0.15);
+      border: 2px solid #FFE4E8;
+      text-align: center;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .card-preview {
+        max-width: 100%;
+        padding: 24px 18px;
+        border-radius: 18px;
+      }
+    }
+
+    .card-stamp {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-family: var(--font-head);
+      font-size: 20px;
+      color: #9D174D;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    @media (max-width: 768px) {
+      .card-title {
+        font-size: 18px;
+      }
+    }
+
+    .card-for {
+      font-family: var(--font-hand);
+      font-size: 24px;
+      color: var(--pink);
+      margin-bottom: 16px;
+      word-break: break-word;
+    }
+
+    @media (max-width: 768px) {
+      .card-for {
+        font-size: 22px;
+      }
+    }
+
+    .qr-box {
+      background: #FFF5F7;
+      padding: 14px;
+      border-radius: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      margin-bottom: 16px;
+      border: 1.5px dashed #FFB6C1;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      .qr-box {
+        padding: 12px;
+      }
+    }
+
+    .qr-box:hover {
+      transform: scale(1.02);
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #qrcode img {
+      margin: 0 auto;
+      border-radius: 6px;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .card-instruction {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4B5563;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .card-footer-note {
+      font-size: 11px;
+      color: #9CA3AF;
+    }
+
+    .instructions-note {
+      font-size: 12px;
+      color: #6B7280;
+      text-align: center;
+      max-width: 320px;
+    }
+
+    @media (max-width: 768px) {
+      .instructions-note {
+        font-size: 11px;
+        max-width: 100%;
+      }
+    }
+
+    .status-message {
+      font-size: 12px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      text-align: center;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #D1FAE5;
+      color: #065F46;
+      display: block;
+    }
+
+    .status-message.error {
+      background: #FEE2E2;
+      color: #991B1B;
+      display: block;
+    }
+
+    /* Print View Rules */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .controls-panel, .btn-action, .instructions-note, .button-group {
+        display: none !important;
+      }
+      .generator-layout {
+        display: block;
+      }
+      .card-preview {
+        box-shadow: none;
+        border: 2px dashed #999;
+        margin: 40px auto;
+        max-width: 100%;
+      }
+    }
+
+    .divider {
+      height: 1px;
+      background: #E5E7EB;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="generator-layout">
+    
+    <!-- Controls Form -->
+    <div class="controls-panel">
+      <h1 class="panel-title">QR Gift Card 💌</h1>
+      <p class="panel-sub">Generate a printable card with QR code</p>
+
+      <div class="form-group">
+        <label for="urlInput">URL or Link</label>
+        <input type="url" id="urlInput" placeholder="https://example.com or http://localhost:3000">
+        <small>Paste your game link, website, or any URL you want to share</small>
+        <div class="status-message" id="statusMessage"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label for="forInput">Recipient Name</label>
+        <input type="text" id="forInput" value="For My Bug 💖" maxlength="30">
+      </div>
+
+      <div class="form-group">
+        <label for="titleInput">Card Title</label>
+        <input type="text" id="titleInput" value="A Secret Surprise For You ✨" maxlength="40">
+      </div>
+
+      <div class="form-group">
+        <label for="instructionInput">Instructions</label>
+        <input type="text" id="instructionInput" value="Scan with your phone camera to play 📱" maxlength="50">
+      </div>
+
+      <div class="form-group">
+        <label for="emojiInput">Card Emoji</label>
+        <input type="text" id="emojiInput" value="💌" maxlength="2" style="text-align: center; font-size: 20px;">
+      </div>
+
+      <div class="divider"></div>
+
+      <button class="btn-action" id="printBtn">
+        <span>🖨️ Print / Save as PDF</span>
+      </button>
+
+      <div class="button-group">
+        <button class="btn-action small btn-secondary" id="downloadBtn">
+          <span>⬇️ Download QR</span>
+        </button>
+        <button class="btn-action small btn-secondary" id="copyBtn">
+          <span>📋 Copy URL</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Card Preview -->
+    <div class="preview-container">
+      <div class="card-preview" id="printableCard">
+        <div class="card-stamp" id="cardStampPreview">💌</div>
+        <div class="card-title" id="cardTitlePreview">A Secret Surprise For You ✨</div>
+        <div class="card-for" id="cardForPreview">For My Bug 💖</div>
+
+        <div class="qr-box" id="qrClickable">
+          <div id="qrcode"></div>
+        </div>
+
+        <div class="card-instruction" id="cardInstructionPreview">Scan with your phone camera to play 📱</div>
+        <div class="card-footer-note">Made with all my love ❤️</div>
+      </div>
+
+      <p class="instructions-note">
+        💡 Print it out, cut it, and tuck it in a card or envelope!
+      </p>
+    </div>
+
+  </div>
+
+  <script>
+    let qrcodeInstance = null;
+
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function showStatus(message, type = 'success') {
+      const statusEl = document.getElementById('statusMessage');
+      statusEl.textContent = message;
+      statusEl.className = `status-message ${type}`;
+      setTimeout(() => {
+        statusEl.className = 'status-message';
+      }, 3000);
+    }
+
+    function updateQRCode() {
+      const urlInput = document.getElementById('urlInput').value.trim();
+      
+      if (!urlInput) {
+        showStatus('❌ Please enter a valid URL', 'error');
+        return false;
+      }
+
+      if (!isValidUrl(urlInput)) {
+        showStatus('❌ Invalid URL format', 'error');
+        return false;
+      }
+
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+
+      try {
+        qrcodeInstance = new QRCode(qrContainer, {
+          text: urlInput,
+          width: 160,
+          height: 160,
+          colorDark: "#FF5E8E",
+          colorLight: "#FFF5F7",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        showStatus('✅ QR code generated!', 'success');
+        return true;
+      } catch (error) {
+        showStatus('❌ Error generating QR code', 'error');
+        return false;
+      }
+    }
+
+    // Real-time text binding
+    document.getElementById('forInput').addEventListener('input', (e) => {
+      document.getElementById('cardForPreview').innerText = e.target.value;
+    });
+
+    document.getElementById('titleInput').addEventListener('input', (e) => {
+      document.getElementById('cardTitlePreview').innerText = e.target.value;
+    });
+
+    document.getElementById('instructionInput').addEventListener('input', (e) => {
+      document.getElementById('cardInstructionPreview').innerText = e.target.value;
+    });
+
+    document.getElementById('emojiInput').addEventListener('input', (e) => {
+      document.getElementById('cardStampPreview').innerText = e.target.value || '💌';
+    });
+
+    document.getElementById('urlInput').addEventListener('blur', () => {
+      updateQRCode();
+    });
+
+    document.getElementById('urlInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        updateQRCode();
+      }
+    });
+
+    // Print functionality
+    document.getElementById('printBtn').onclick = () => {
+      if (!document.getElementById('urlInput').value.trim()) {
+        showStatus('❌ Please enter a URL before printing', 'error');
+        return;
+      }
+      window.print();
+    };
+
+    // Download QR code
+    document.getElementById('downloadBtn').onclick = () => {
+      if (!document.getElementById('urlInput').value.trim()) {
+        showStatus('❌ Please enter a URL first', 'error');
+        return;
+      }
+      
+      const canvas = document.querySelector('#qrcode canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'qr-code.png';
+        link.click();
+        showStatus('✅ QR code downloaded!', 'success');
+      }
+    };
+
+    // Copy URL to clipboard
+    document.getElementById('copyBtn').onclick = () => {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) {
+        showStatus('❌ Please enter a URL first', 'error');
+        return;
+      }
+      
+      navigator.clipboard.writeText(url).then(() => {
+        showStatus('✅ URL copied to clipboard!', 'success');
+      }).catch(() => {
+        showStatus('❌ Failed to copy', 'error');
+      });
+    };
+
+    // Make QR box clickable to download
+    document.getElementById('qrClickable').addEventListener('click', () => {
+      const canvas = document.querySelector('#qrcode canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'qr-code.png';
+        link.click();
+      }
+    });
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      // Auto-generate if URL is provided
+      const urlInput = document.getElementById('urlInput');
+      if (urlInput.value.trim()) {
+        updateQRCode();
+      }
+    });
+  </script>
+</body>
+</html>
