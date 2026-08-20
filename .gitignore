@@ -1,0 +1,17 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if ever needed)
+node_modules/
+npm-debug.log
+
+# Build output
+dist/
+build/
