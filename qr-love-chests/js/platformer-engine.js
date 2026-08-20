@@ -1,6 +1,7 @@
 /**
  * 🍄 MARIO & TERRARIA RETRO PLATFORMER ENGINE
  * 2D Side-scrolling physics, jumping, question mark [?] blocks, coins, parallax background, and 3 chests.
+ * NOW WITH LEVEL PROGRESSION SYSTEM!
  */
 
 class RetroPlatformerGame {
@@ -9,6 +10,9 @@ class RetroPlatformerGame {
     this.ctx = null;
     this.config = window.RPG_CONFIG;
     this.currentWorld = 'meadow'; // 'meadow', 'memoryStage'
+    this.currentLevel = 1; // Level 1, 2, 3, etc.
+    this.levelComplete = false;
+    this.levelStartTime = Date.now();
 
     // Camera
     this.camera = { x: 0, y: 0, width: 0, height: 0 };
@@ -32,7 +36,7 @@ class RetroPlatformerGame {
       score: 0
     };
 
-    // Level Dimensions
+    // Level Dimensions (Dynamic based on level)
     this.worldWidth = 3200;
     this.worldHeight = 800;
 
@@ -42,6 +46,7 @@ class RetroPlatformerGame {
     this.coins = [];
     this.scenery = [];
     this.floatingPops = [];
+    this.levelGoal = null; // Goal chest/flag at end of level
 
     // Inputs
     this.keys = {};
@@ -52,7 +57,8 @@ class RetroPlatformerGame {
     this.nearbyStop = null;
   }
 
-  start() {
+  start(level = 1) {
+    this.currentLevel = level;
     this.canvas = document.getElementById('rpgCanvas');
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
@@ -62,6 +68,7 @@ class RetroPlatformerGame {
 
     this.setupInputListeners();
     this.buildWorld();
+    this.updateHUD();
 
     // Start Loop
     requestAnimationFrame((t) => this.loop(t));
@@ -76,23 +83,44 @@ class RetroPlatformerGame {
   }
 
   // ──────────────────────────────────────────────
-  // BUILD WORLD TILES (Mario & Terraria Style)
+  // BUILD WORLD TILES (Different for each level!)
   // ──────────────────────────────────────────────
   buildWorld() {
     this.blocks = [];
     this.chests = [];
     this.scenery = [];
     this.coins = [];
+    this.floatingPops = [];
+    this.levelComplete = false;
+    this.levelStartTime = Date.now();
 
     const groundY = 620;
 
-    // 1. Continuous Ground Floor (Terraria Grass/Dirt)
+    if (this.currentLevel === 1) {
+      this.buildLevel1(groundY);
+    } else if (this.currentLevel === 2) {
+      this.buildLevel2(groundY);
+    } else {
+      this.buildLevel1(groundY); // Default fallback
+    }
+
+    // Update HUD with level number
+    const hudItems = document.querySelectorAll('.hud-val');
+    if (hudItems && hudItems[1]) {
+      hudItems[1].innerText = `1-${this.currentLevel} ❤️`;
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // LEVEL 1-1: Original Meadow (Easy - Tutorial)
+  // ──────────────────────────────────────────────
+  buildLevel1(groundY) {
+    // 1. Continuous Ground Floor
     for (let x = 0; x < this.worldWidth; x += 40) {
       this.blocks.push({ x, y: groundY, width: 40, height: 180, type: 'ground' });
     }
 
-    // 2. Terraria Floating Islands & Mario Question Blocks [?]
-    // First cluster near spawn
+    // 2. Tutorial Question Blocks
     this.addQuestionBlock(300, groundY - 140, 'heart');
     this.addQuestionBlock(350, groundY - 140, 'coin');
     this.addQuestionBlock(400, groundY - 140, 'coin');
@@ -107,10 +135,11 @@ class RetroPlatformerGame {
       width: 44,
       height: 40,
       emoji: '🌸',
-      title: 'Chest 1: Memory Adventure'
+      title: 'Chest 1: Memory Adventure',
+      level: 1
     });
 
-    // Mid-level Floating Platforms & Mario Pipe / Stairs
+    // Mid-level Floating Platforms
     this.addIsland(950, groundY - 130, 140);
     this.addQuestionBlock(1150, groundY - 160, 'coin');
     this.addQuestionBlock(1200, groundY - 160, 'heart');
@@ -125,15 +154,16 @@ class RetroPlatformerGame {
       width: 44,
       height: 40,
       emoji: '🎮',
-      title: 'Chest 2: Love Arcade'
+      title: 'Chest 2: Love Arcade',
+      level: 1
     });
 
-    // Bridge / Stepping Stone Islands (Terraria Vine islands)
+    // Bridge / Stepping Stone Islands
     this.addIsland(1800, groundY - 120, 120);
     this.addIsland(2000, groundY - 160, 120);
     this.addIsland(2200, groundY - 200, 140);
 
-    // Memory Stops along the world!
+    // Memory Stops along the world
     const stops = this.config.memoryRoad.stops;
     const stopPositions = [550, 1050, 1700, 2150, 2600];
     stops.forEach((stop, i) => {
@@ -150,28 +180,147 @@ class RetroPlatformerGame {
       }
     });
 
-    // 🎁 Chest #3 Peach's Castle / Romantic Gazebo at End of Level
+    // 🎁 Chest #3 (End of Level Goal)
     this.addIsland(2700, groundY - 80, 300);
-    this.chests.push({
+    this.levelGoal = {
       id: 3,
       x: 2820,
       y: groundY - 122,
       width: 48,
       height: 44,
       emoji: '🎁',
-      title: 'Chest 3: Secret Vault'
-    });
+      title: 'Chest 3: Secret Vault',
+      level: 1,
+      isGoal: true
+    };
+    this.chests.push(this.levelGoal);
 
-    // Castle Scenery at End
+    // Castle Scenery
     this.scenery.push({ type: 'castle', x: 2950, y: groundY - 160, emoji: '🏰' });
 
-    // Decorative Trees, Campfires, Lanterns (Terraria vibe)
+    // Decorative Elements
     for (let x = 80; x < this.worldWidth; x += 180) {
       this.scenery.push({
         type: 'decor',
         x: x + Math.random() * 40,
         y: groundY - 30,
         emoji: ['🌸', '🌲', '🏮', '🔥', '🌷', '🍄', '🌻'][Math.floor(Math.random() * 7)]
+      });
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  // LEVEL 1-2: Sky Kingdom (Medium - Challenge!)
+  // ──────────────────────────────────────────────
+  buildLevel2(groundY) {
+    // Start higher up in the sky
+    const skyStart = groundY - 300;
+
+    // 1. Ground Floor (optional safety net)
+    for (let x = 0; x < this.worldWidth; x += 40) {
+      this.blocks.push({ x, y: groundY, width: 40, height: 180, type: 'ground' });
+    }
+
+    // 2. CHALLENGE: Floating Cloud Platforms (No continuous ground!)
+    // Opening sequence - stepping stones
+    this.addIsland(150, skyStart + 80, 100, 'cloud');
+    this.addIsland(350, skyStart + 60, 100, 'cloud');
+    this.addIsland(550, skyStart + 100, 100, 'cloud');
+
+    // Question blocks in the sky
+    this.addQuestionBlock(250, skyStart + 20, 'coin');
+    this.addQuestionBlock(450, skyStart - 20, 'heart');
+    this.addQuestionBlock(650, skyStart + 40, 'coin');
+
+    // 🌟 Chest #1: Sky Temple
+    this.addIsland(850, skyStart + 50, 150, 'cloud');
+    this.chests.push({
+      id: 1,
+      x: 920,
+      y: skyStart - 10,
+      width: 44,
+      height: 40,
+      emoji: '🌟',
+      title: 'Chest 1: Sky Blessing',
+      level: 2
+    });
+
+    // CHALLENGE SECTION 1: Narrow Jumping Gaps
+    this.addIsland(1150, skyStart + 120, 80, 'cloud');
+    this.addIsland(1270, skyStart + 100, 80, 'cloud');
+    this.addIsland(1390, skyStart + 140, 80, 'cloud');
+    this.addIsland(1510, skyStart + 80, 80, 'cloud');
+    this.addQuestionBlock(1350, skyStart + 30, 'coin');
+
+    // 💎 Chest #2: Rainbow Bridge
+    this.addIsland(1750, skyStart - 20, 200, 'cloud');
+    this.chests.push({
+      id: 2,
+      x: 1830,
+      y: skyStart - 70,
+      width: 44,
+      height: 40,
+      emoji: '💎',
+      title: 'Chest 2: Dream Power',
+      level: 2
+    });
+
+    // CHALLENGE SECTION 2: The Spiral Tower (Ascending platforms)
+    this.addIsland(2050, skyStart - 80, 120, 'cloud');
+    this.addIsland(2150, skyStart - 180, 100, 'cloud');
+    this.addIsland(2250, skyStart - 280, 100, 'cloud');
+    this.addQuestionBlock(2100, skyStart - 120, 'star');
+    this.addQuestionBlock(2200, skyStart - 220, 'heart');
+    this.addQuestionBlock(2300, skyStart - 320, 'coin');
+
+    // Memory Shrine: Peak of the Mountain
+    this.scenery.push({
+      type: 'memoryShrine',
+      x: 2280,
+      y: skyStart - 350,
+      stopData: {
+        title: 'Peak Moment',
+        date: 'Our Highest Point',
+        text: 'Reaching new heights together.',
+        image: 'assets/photos/milestone_peak.svg',
+        icon: '⛅'
+      },
+      stopIndex: 5,
+      emoji: '⛅',
+      title: 'Peak Moment'
+    });
+
+    // CHALLENGE SECTION 3: Descending to the Palace
+    this.addIsland(2450, skyStart - 200, 100, 'cloud');
+    this.addIsland(2600, skyStart - 100, 120, 'cloud');
+    this.addIsland(2750, skyStart + 50, 140, 'cloud');
+    this.addQuestionBlock(2550, skyStart - 250, 'coin');
+
+    // 👑 Final Chest #3: Sky Palace (Level Goal!)
+    this.addIsland(2900, skyStart + 100, 280, 'cloud');
+    this.levelGoal = {
+      id: 3,
+      x: 2980,
+      y: skyStart + 40,
+      width: 48,
+      height: 44,
+      emoji: '👑',
+      title: 'Chest 3: Eternal Love Crown',
+      level: 2,
+      isGoal: true
+    };
+    this.chests.push(this.levelGoal);
+
+    // Sky Castle Scenery
+    this.scenery.push({ type: 'castle', x: 3100, y: skyStart - 50, emoji: '✨' });
+
+    // Sky Decorations
+    for (let i = 0; i < 15; i++) {
+      this.scenery.push({
+        type: 'decor',
+        x: i * 200 + 100,
+        y: skyStart - 400 + Math.random() * 100,
+        emoji: ['⭐', '💫', '✨', '🌙', '☁️', '💕'][Math.floor(Math.random() * 6)]
       });
     }
   }
@@ -265,8 +414,13 @@ class RetroPlatformerGame {
       window.soundEngine.playChestOpen();
       window.particleEngine.confettiExplosion();
 
+      // Check if this is the goal chest (end of level)
+      if (this.nearbyChest.isGoal) {
+        this.completeLevel();
+        return;
+      }
+
       if (id === 1) {
-        // Show dialogue & hint to explore the world
         alert("🌸 Chest 1 Unlocked: Jump across the world to discover all our memory shrines!");
       } else if (id === 2) {
         // Open Chest 2 Love Quiz Modal
@@ -307,10 +461,38 @@ class RetroPlatformerGame {
     }
   }
 
+  completeLevel() {
+    this.levelComplete = true;
+    window.soundEngine.playFanfare();
+    window.particleEngine.confettiExplosion();
+
+    const levelTime = Math.floor((Date.now() - this.levelStartTime) / 1000);
+    const levelBonus = Math.max(0, 1000 - levelTime * 10); // Bonus for speed
+    this.player.score += levelBonus;
+
+    // Save progress
+    localStorage.setItem('qr_game_level_completed', this.currentLevel.toString());
+    localStorage.setItem('qr_game_coins', this.player.coins.toString());
+    localStorage.setItem('qr_game_score', this.player.score.toString());
+
+    setTimeout(() => {
+      if (this.currentLevel === 1) {
+        // Show level 2 unlock message
+        alert(`🎉 Level 1-1 Complete! Time: ${levelTime}s\n\n✨ Level 1-2 (Sky Kingdom) is now unlocked!\n\nPress OK to continue to the next level!`);
+        this.start(2); // Load Level 2
+      } else if (this.currentLevel === 2) {
+        // Show final message
+        alert(`🎉 Level 1-2 Complete! Time: ${levelTime}s\n\n👑 You've conquered the Sky Kingdom!\n\nThank you for playing our love story game! 💕`);
+      }
+    }, 800);
+  }
+
   // ──────────────────────────────────────────────
   // UPDATE LOOP (Platformer Physics & Collisions)
   // ──────────────────────────────────────────────
   update() {
+    if (this.levelComplete) return;
+
     // 1. Horizontal Movement
     this.player.vx = 0;
     if (this.keys['arrowleft'] || this.keys['a'] || this.touchLeft) {
@@ -443,7 +625,11 @@ class RetroPlatformerGame {
     if (actionBtn) {
       if (nearChest) {
         actionBtn.classList.add('pulse');
-        actionBtn.innerHTML = '<span>OPEN</span><span style="font-size:9px; opacity:0.9;">[E]</span>';
+        if (nearChest.isGoal) {
+          actionBtn.innerHTML = '<span>FINISH</span><span style="font-size:9px; opacity:0.9;">[E]</span>';
+        } else {
+          actionBtn.innerHTML = '<span>OPEN</span><span style="font-size:9px; opacity:0.9;">[E]</span>';
+        }
       } else if (nearStop) {
         actionBtn.classList.add('pulse');
         actionBtn.innerHTML = '<span>READ</span><span style="font-size:9px; opacity:0.9;">[E]</span>';
@@ -489,30 +675,46 @@ class RetroPlatformerGame {
   }
 
   drawParallaxSky() {
-    // Sky Gradient (Sunset Pastel Mario / Terraria Sky)
+    // Sky Gradient (Changes based on level)
     const skyGrad = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-    skyGrad.addColorStop(0, '#70A5FF');
-    skyGrad.addColorStop(0.6, '#BCE4FF');
-    skyGrad.addColorStop(1, '#FFE3EC');
+    
+    if (this.currentLevel === 1) {
+      // Level 1: Sunset Pastel
+      skyGrad.addColorStop(0, '#70A5FF');
+      skyGrad.addColorStop(0.6, '#BCE4FF');
+      skyGrad.addColorStop(1, '#FFE3EC');
+    } else {
+      // Level 2: Deep Sky Purple
+      skyGrad.addColorStop(0, '#5B3B9D');
+      skyGrad.addColorStop(0.5, '#7B68EE');
+      skyGrad.addColorStop(1, '#87CEEB');
+    }
+    
     this.ctx.fillStyle = skyGrad;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Parallax Mountain Silhouettes
-    this.ctx.fillStyle = 'rgba(167, 139, 250, 0.35)';
-    for (let i = 0; i < 10; i++) {
-      const mx = i * 400 - (this.camera.x * 0.2) % 400;
-      this.ctx.beginPath();
-      this.ctx.moveTo(mx, 600);
-      this.ctx.lineTo(mx + 200, 380);
-      this.ctx.lineTo(mx + 400, 600);
-      this.ctx.fill();
+    // Parallax Mountain Silhouettes (Level 1 only)
+    if (this.currentLevel === 1) {
+      this.ctx.fillStyle = 'rgba(167, 139, 250, 0.35)';
+      for (let i = 0; i < 10; i++) {
+        const mx = i * 400 - (this.camera.x * 0.2) % 400;
+        this.ctx.beginPath();
+        this.ctx.moveTo(mx, 600);
+        this.ctx.lineTo(mx + 200, 380);
+        this.ctx.lineTo(mx + 400, 600);
+        this.ctx.fill();
+      }
     }
 
     // Parallax Pixel Clouds
     this.ctx.font = '48px sans-serif';
     for (let i = 0; i < 8; i++) {
       const cx = i * 450 - (this.camera.x * 0.4) % 450;
-      this.ctx.fillText('☁️', cx, 120 + (i % 3) * 40);
+      if (this.currentLevel === 1) {
+        this.ctx.fillText('☁️', cx, 120 + (i % 3) * 40);
+      } else {
+        this.ctx.fillText('✨', cx, 80 + (i % 3) * 60);
+      }
     }
   }
 
@@ -563,8 +765,9 @@ class RetroPlatformerGame {
     this.ctx.save();
     const bob = Math.sin(Date.now() * 0.005 + c.id) * 4;
 
-    // Glowing Platform Pedestal
-    this.ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
+    // Glowing Platform Pedestal (Extra glow for goal chest)
+    const glowIntensity = c.isGoal ? 0.6 : 0.4;
+    this.ctx.fillStyle = `rgba(255, 215, 0, ${glowIntensity})`;
     this.ctx.beginPath();
     this.ctx.ellipse(c.x + 22, c.y + 35, 26, 10, 0, 0, Math.PI * 2);
     this.ctx.fill();
@@ -577,7 +780,11 @@ class RetroPlatformerGame {
     // Chest Banner Label
     this.ctx.fillStyle = '#FFFFFF';
     this.ctx.font = 'bold 11px "Press Start 2P", monospace, sans-serif';
-    this.ctx.fillText(`[${c.id}]`, c.x + 22, c.y - 10 + bob);
+    if (c.isGoal) {
+      this.ctx.fillText('GOAL', c.x + 22, c.y - 10 + bob);
+    } else {
+      this.ctx.fillText(`[${c.id}]`, c.x + 22, c.y - 10 + bob);
+    }
 
     this.ctx.restore();
   }
