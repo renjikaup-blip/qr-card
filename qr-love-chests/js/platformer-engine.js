@@ -25,8 +25,8 @@ class RetroPlatformerGame {
       height: 40,
       vx: 0,
       vy: 0,
-      speed: 2.8, // Calibrated slower, cozy movement speed
-      jumpForce: -6.4, // Anti-gravity floating jump
+      speed: 1.8, // Slower, more controlled movement
+      jumpForce: -9.2, // Higher jump for Level 2's gaps
       gravity: 0.16, // Super low gravity float
       isGrounded: false,
       facing: 'right',
